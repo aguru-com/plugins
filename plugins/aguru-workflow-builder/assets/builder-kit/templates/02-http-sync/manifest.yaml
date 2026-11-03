@@ -1,0 +1,14 @@
+ref: acme-http-sync
+kind: project
+label: Acme HTTP Sync
+description: Puts overdue Acme jobs on hold.
+config:
+  install:
+    - title: Settings
+      fields:
+        acmeBaseUrl:
+          type: SHORT_TEXT
+          required: true
+          displayName: Acme API Base URL
+          description: Base URL of the Acme Jobs API, without a trailing slash
+          defaultValue: https://api.acme-jobs.example/v1

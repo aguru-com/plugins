@@ -1,0 +1,11 @@
+{
+  "needId": "acme-complete-job-record.ask-contact",
+  "outcome": "fulfilled",
+  "slots": {
+    "accessNotes": {
+      "status": "filled",
+      "value": "  Ring the bell at\n reception;  ask for Sam. "
+    },
+    "onSiteParking": { "status": "filled", "value": false }
+  }
+}

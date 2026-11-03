@@ -1,0 +1,194 @@
+ref: acme-complete-job-record
+
+unit:
+  - describe: normalize-answers
+    tests:
+      - it: collapses whitespace in the access notes
+        block: record.write.normalize-answers
+        params:
+          input: { jobId: '42' }
+          state:
+            {
+              answers:
+                {
+                  accessNotes: "  Ring the bell at\n reception;  ask for Sam. ",
+                  onSiteParking: false,
+                },
+            }
+          node: { id: write }
+        events:
+          - on: normalize-answers
+            expect-out:
+              { accessNotes: 'Ring the bell at reception; ask for Sam.', onSiteParking: false }
+
+      - it: caps the access notes at 500 characters
+        block: record.write.normalize-answers
+        params:
+          input: { jobId: '42' }
+          state:
+            answers:
+              accessNotes: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+              onSiteParking: true
+          node: { id: write }
+        events:
+          - on: normalize-answers
+            expect-out:
+              accessNotes: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...'
+              onSiteParking: true
+
+  - describe: check-conflict
+    tests:
+      - it: sees no conflict when the record is still empty
+        block: record.write.check-conflict
+        params: { input: { jobId: '42' }, state: { force: false }, node: { id: write } }
+        ctx:
+          current: { body: { accessNotes: null } }
+          answers: { accessNotes: Ring the bell }
+        events:
+          - on: check-conflict
+            expect-out: false
+
+      - it: sees no conflict when the record already says the same
+        block: record.write.check-conflict
+        params: { input: { jobId: '42' }, state: { force: false }, node: { id: write } }
+        ctx:
+          current: { body: { accessNotes: ' Ring the bell ' } }
+          answers: { accessNotes: Ring the bell }
+        events:
+          - on: check-conflict
+            expect-out: false
+
+      - it: sees a conflict when someone wrote different notes
+        block: record.write.check-conflict
+        params: { input: { jobId: '42' }, state: { force: false }, node: { id: write } }
+        ctx:
+          current: { body: { accessNotes: Use the loading bay } }
+          answers: { accessNotes: Ring the bell }
+        events:
+          - on: check-conflict
+            expect-out: true
+
+      - it: sees a conflict when someone set a different parking answer
+        block: record.write.check-conflict
+        params: { input: { jobId: '42' }, state: { force: false }, node: { id: write } }
+        ctx:
+          current: { body: { accessNotes: null, onSiteParking: true } }
+          answers: { accessNotes: Ring the bell, onSiteParking: false }
+        events:
+          - on: check-conflict
+            expect-out: true
+
+      - it: sees no conflict when the parking answer already agrees
+        block: record.write.check-conflict
+        params: { input: { jobId: '42' }, state: { force: false }, node: { id: write } }
+        ctx:
+          current: { body: { accessNotes: null, onSiteParking: false } }
+          answers: { accessNotes: Ring the bell, onSiteParking: false }
+        events:
+          - on: check-conflict
+            expect-out: false
+
+e2e:
+  - it: finishes at once when the record is already complete
+    params: { jobId: '42' }
+    config: &config { acmeBaseUrl: https://api.acme-jobs.example/v1, senderName: Acme Records }
+    mocks:
+      - block: record.*.fetch.get-job
+        out: 'fixture:./job-complete.json'
+      - block: record.*.fetch.get-contact
+        out: 'fixture:./contact-311.json'
+    post-run:
+      - block: record.*.ask.ask-contact
+        called: false
+      - return: { outcome: completed, result: { jobReference: JOB-0042 } }
+
+  - it: asks the contact and writes the cleaned answer back
+    params: { jobId: '42' }
+    config: *config
+    mocks:
+      - block: record.*.fetch.get-job
+        out: 'fixture:./job-incomplete.json'
+      - block: record.*.fetch.get-contact
+        out: 'fixture:./contact-311.json'
+      - block: record.*.ask.ask-contact
+        out: 'fixture:./reply-answered.json'
+      - block: record.*.write.reread-job
+        out: 'fixture:./job-incomplete.json'
+      - block: record.*.write.write-answers
+        out: { success: true, statusCode: 200, body: {} }
+        times: 1
+    events:
+      - on: record.*.ask.ask-contact
+        expect-in:
+          stakeholder: { emails: [{ value: dana.reyes@example.test, is-primary: true }] }
+          outcomes: [[accessNotes, onSiteParking]]
+      - on: record.*.write.write-answers
+        expect-in:
+          method: PATCH
+          url: https://api.acme-jobs.example/v1/jobs/42
+          body: { accessNotes: 'Ring the bell at reception; ask for Sam.', onSiteParking: false }
+    post-run:
+      - return: { outcome: completed }
+
+  - it: gives up when the contact never answers
+    params: { jobId: '42' }
+    config: *config
+    mocks:
+      - block: record.*.fetch.get-job
+        out: 'fixture:./job-incomplete.json'
+      - block: record.*.fetch.get-contact
+        out: 'fixture:./contact-311.json'
+      - block: record.*.ask.ask-contact
+        out:
+          {
+            outcome: abandoned,
+            slots: { accessNotes: { status: missing }, onSiteParking: { status: missing } },
+          }
+    post-run:
+      - block: record.*.write.write-answers
+        called: false
+      - return:
+          outcome: no-answer
+          reason: The site contact did not answer before the deadline.
+
+  - it: overwrites a conflicting record when the operator says so
+    params: { jobId: '42' }
+    config: *config
+    mocks:
+      - block: record.*.fetch.get-job
+        out: 'fixture:./job-incomplete.json'
+      - block: record.*.fetch.get-contact
+        out: 'fixture:./contact-311.json'
+      - block: record.*.ask.ask-contact
+        out: 'fixture:./reply-answered.json'
+      - block: record.*.write.reread-job
+        out: { success: true, statusCode: 200, body: { accessNotes: Use the loading bay } }
+        times: 1
+      - block: record.*.write.write-answers
+        out: { success: true, statusCode: 200, body: {} }
+        times: 1
+    events:
+      - on: record.*.resolve.ask-operator
+        signal: { name: record-conflict-decision, payload: { decision: use-answer } }
+    post-run:
+      - return: { outcome: completed }
+
+  - it: keeps the record when the operator says so
+    params: { jobId: '42' }
+    config: *config
+    mocks:
+      - block: record.*.fetch.get-job
+        out: 'fixture:./job-incomplete.json'
+      - block: record.*.fetch.get-contact
+        out: 'fixture:./contact-311.json'
+      - block: record.*.ask.ask-contact
+        out: 'fixture:./reply-answered.json'
+      - block: record.*.write.reread-job
+        out: { success: true, statusCode: 200, body: { accessNotes: Use the loading bay } }
+    events:
+      - on: record.*.resolve.ask-operator
+        signal: { name: record-conflict-decision, payload: { decision: keep-record } }
+    post-run:
+      - block: record.*.write.write-answers
+        called: false
+      - return: { outcome: completed }

@@ -1,0 +1,43 @@
+ref: acme-visit-reminders
+
+unit:
+  - it: computes tomorrow from asOf
+    block: tomorrow
+    params: { asOf: '2026-10-31' }
+    ctx: { subscription: { active: true } }
+    events:
+      - on: tomorrow
+        expect-out: '2026-11-01'
+
+e2e:
+  - it: starts one reminder run per job
+    params: { asOf: '2026-10-15' }
+    config: &config { acmeBaseUrl: https://api.acme-jobs.example/v1, senderName: Acme Scheduling }
+    mocks:
+      - block: check-subscription
+        out: { active: true, status: active, stripeCustomerId: cus_123 }
+      - block: list-visits
+        out: 'fixture:./visits.json'
+      - block: remind-each.*.start-reminder
+        out: { workflowId: acme-remind-contact-1, runId: run-1, status: running }
+        times: 2
+    events:
+      - on: list-visits
+        expect-in: { query: { status: scheduled, visitDate: '2026-10-16' } }
+      - on: remind-each.0.start-reminder
+        expect-in:
+          id: acme-remind-contact
+          params: { jobId: '42', visitDate: '2026-10-16', stripeCustomerId: cus_123 }
+    post-run:
+      - return: { visitDate: '2026-10-16', requested: 2 }
+
+  - it: sends nothing without an active subscription
+    params: { asOf: '2026-10-15' }
+    config: *config
+    mocks:
+      - block: check-subscription
+        out: { active: false, status: canceled, stripeCustomerId: cus_123 }
+    post-run:
+      - block: list-visits
+        called: false
+      - return: { visitDate: null, requested: 0 }

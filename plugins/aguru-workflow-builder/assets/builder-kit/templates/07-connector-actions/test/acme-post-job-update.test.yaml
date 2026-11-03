@@ -1,0 +1,67 @@
+ref: acme-post-job-update
+
+unit:
+  - it: converts the update to Slack mrkdwn with the real connector action
+    block: format-update
+    params: { jobId: '42' }
+    ctx:
+      job:
+        success: true
+        body: { reference: JOB-0042, title: Replace boiler pressure valve, status: open }
+    events:
+      - on: format-update
+        expect-out: "\u200B*JOB-0042*\u200B Replace boiler pressure valve is now \u200B_open_\u200B.\n"
+
+e2e:
+  - it: posts the formatted update to the configured channel with the saved credential
+    params: { jobId: '42' }
+    config:
+      acmeBaseUrl: https://api.acme-jobs.example/v1
+      slackCredential: acme-slack
+      slackChannelId: C0123456789
+    mocks:
+      - block: get-job
+        out: 'fixture:./job-42.json'
+      - block: post-update
+        out: { ok: true, channel: C0123456789, ts: '1792270000.000100' }
+    events:
+      - on: post-update
+        expect-in:
+          piece: '@activepieces/piece-slack'
+          version: '0.23.1'
+          action: send_channel_message
+          credential: acme-slack
+          input:
+            channel: C0123456789
+            text: "\u200B*JOB-0042*\u200B Replace boiler pressure valve is now \u200B_open_\u200B.\n"
+            unfurlLinks: false
+    post-run:
+      - block: post-update
+        times: 1
+      - return: { jobId: '42', posted: true }
+      - status: completed
+
+  - it: posts nothing when the job cannot be read
+    params: { jobId: '404' }
+    config:
+      acmeBaseUrl: https://api.acme-jobs.example/v1
+      slackCredential: acme-slack
+      slackChannelId: C0123456789
+    mocks:
+      - block: get-job
+        out:
+          {
+            success: false,
+            statusCode: 404,
+            statusText: Not Found,
+            headers: {},
+            body: { error: No such record },
+          }
+    events:
+      - on: get-job
+        expect-in: { fail-on-error: false }
+    post-run:
+      - block: post-update
+        called: false
+      - return: { jobId: '404', posted: false }
+      - status: completed

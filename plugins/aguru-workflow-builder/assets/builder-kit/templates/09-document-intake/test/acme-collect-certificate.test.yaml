@@ -1,0 +1,138 @@
+ref: acme-collect-certificate
+
+e2e:
+  - it: reads a clear certificate by its attachment id and records it without an operator
+    params: &params { jobId: '42' }
+    config: &config
+      acmeBaseUrl: https://api.acme-jobs.example/v1
+      senderName: Acme Compliance
+      certificateReaderModel: &reader-model
+        provider: anthropic
+        model: claude-haiku-4-5
+        max-tokens: 1024
+        api-key: acme-anthropic-key
+    mocks:
+      - block: get-job
+        out: 'fixture:./job-42.json'
+      - block: get-contact
+        out: 'fixture:./contact-311.json'
+      - block: ask-for-certificate
+        out: 'fixture:./reply-certificate.json'
+      - block: read-certificate
+        out: { certificateNumber: GS-2026-118204, expiresOn: '2027-10-14' }
+      - block: record-certificate
+        out: { success: true, statusCode: 200, body: { id: 42 } }
+    events:
+      - on: ask-for-certificate
+        expect-in:
+          stakeholder:
+            emails: [{ value: dana.reyes@example.test, is-primary: true }]
+          outcomes: [[certificate]]
+          timeout: 7d
+      - on: read-certificate
+        expect-in:
+          model: *reader-model
+          attachments:
+            - url: attachment:att-5c2e
+              media-type: application/pdf
+              file-name: JOB-0042-certificate.pdf
+      - on: record-certificate
+        expect-in:
+          method: PATCH
+          url: https://api.acme-jobs.example/v1/jobs/42
+          body: { certificate: { number: GS-2026-118204, expiresOn: '2027-10-14' } }
+    post-run:
+      - block: review-certificate
+        called: false
+      - return:
+          outcome: fulfilled
+          recorded: true
+          certificateNumber: GS-2026-118204
+          expiresOn: '2027-10-14'
+      - status: completed
+
+  - it: asks an operator about an unreadable field and records what they enter
+    params: *params
+    config: *config
+    mocks:
+      - block: get-job
+        out: 'fixture:./job-42.json'
+      - block: get-contact
+        out: 'fixture:./contact-311.json'
+      - block: ask-for-certificate
+        out: 'fixture:./reply-certificate.json'
+      - block: read-certificate
+        out: { certificateNumber: GS-2026-118204, expiresOn: null }
+      - block: record-certificate
+        out: { success: true, statusCode: 200, body: { id: 42 } }
+    events:
+      - on: review-certificate
+        signal:
+          name: acme-certificate-review
+          payload: { decision: record, certificateNumber: GS-2026-118204, expiresOn: '2027-09-30' }
+      - on: record-certificate
+        expect-in:
+          body: { certificate: { number: GS-2026-118204, expiresOn: '2027-09-30' } }
+    post-run:
+      - return: { recorded: true, expiresOn: '2027-09-30' }
+      - status: completed
+
+  - it: records nothing when the operator rejects the certificate
+    params: *params
+    config: *config
+    mocks:
+      - block: get-job
+        out: 'fixture:./job-42.json'
+      - block: get-contact
+        out: 'fixture:./contact-311.json'
+      - block: ask-for-certificate
+        out: 'fixture:./reply-certificate.json'
+      - block: read-certificate
+        out: { certificateNumber: null, expiresOn: null }
+    events:
+      - on: review-certificate
+        signal: { name: acme-certificate-review, payload: { decision: reject } }
+    post-run:
+      - block: record-certificate
+        called: false
+      - return: { recorded: false }
+      - status: completed
+
+  - it: records nothing when the operator chooses record but leaves the expiry date blank
+    params: *params
+    config: *config
+    mocks:
+      - block: get-job
+        out: 'fixture:./job-42.json'
+      - block: get-contact
+        out: 'fixture:./contact-311.json'
+      - block: ask-for-certificate
+        out: 'fixture:./reply-certificate.json'
+      - block: read-certificate
+        out: { certificateNumber: GS-2026-118204, expiresOn: null }
+    events:
+      - on: review-certificate
+        signal: { name: acme-certificate-review, payload: { decision: record, expiresOn: '' } }
+    post-run:
+      - block: record-certificate
+        called: false
+      - return: { recorded: false, certificateNumber: GS-2026-118204, expiresOn: null }
+      - status: completed
+
+  - it: never calls the model when the contact sends nothing
+    params: *params
+    config: *config
+    mocks:
+      - block: get-job
+        out: 'fixture:./job-42.json'
+      - block: get-contact
+        out: 'fixture:./contact-311.json'
+      - block: ask-for-certificate
+        out: { outcome: abandoned, slots: { certificate: { status: missing } } }
+    post-run:
+      - block: read-certificate
+        called: false
+      - block: record-certificate
+        called: false
+      - return: { outcome: abandoned, recorded: false, certificateNumber: null, expiresOn: null }
+      - status: completed

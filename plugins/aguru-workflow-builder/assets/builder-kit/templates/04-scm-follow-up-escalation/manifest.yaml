@@ -1,0 +1,25 @@
+ref: acme-scm-follow-up-escalation
+kind: project
+label: Acme Completion Reports
+description: Chases contractors for completion reports, with escalation.
+config:
+  install:
+    - title: Settings
+      fields:
+        acmeBaseUrl:
+          type: SHORT_TEXT
+          required: true
+          displayName: Acme API Base URL
+          description: Base URL of the Acme Jobs API, without a trailing slash
+          defaultValue: https://api.acme-jobs.example/v1
+        senderName:
+          type: SHORT_TEXT
+          required: true
+          displayName: Sender Name
+          description: The name the contractor sees the email from
+          defaultValue: Acme Operations
+        escalationEmail:
+          type: SHORT_TEXT
+          required: true
+          displayName: Escalation Email
+          description: Who is told when a contractor ignores every reminder

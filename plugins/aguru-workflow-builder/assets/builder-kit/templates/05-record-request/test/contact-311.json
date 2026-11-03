@@ -1,0 +1,11 @@
+{
+  "success": true,
+  "statusCode": 200,
+  "body": {
+    "id": 311,
+    "firstName": "Dana",
+    "lastName": "Reyes",
+    "email": "dana.reyes@example.test",
+    "phone": "+44 7700 900311"
+  }
+}

@@ -1,0 +1,4 @@
+ref: acme-connector-chain
+kind: project
+label: Acme Connector Chain
+description: Lists the notices a feed published in the last day, through the Date Helper and RSS connectors.

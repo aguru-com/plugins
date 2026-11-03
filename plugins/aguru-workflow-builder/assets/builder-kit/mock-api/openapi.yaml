@@ -1,0 +1,182 @@
+openapi: 3.1.0
+info:
+  title: Acme Jobs API
+  version: 1.0.0
+  description: >
+    A fictional field-service API that every kit template calls. Serve it
+    locally with `pnpm mock-api` (Prism). For a live run on the platform it
+    must be reachable on a public address, since workflows cannot call
+    private ones.
+servers:
+  - url: https://api.acme-jobs.example/v1
+security:
+  - bearer: []
+paths:
+  /jobs:
+    get:
+      operationId: listJobs
+      summary: List jobs, one page at a time
+      parameters:
+        - { name: status, in: query, schema: { $ref: '#/components/schemas/JobStatus' } }
+        - { name: visitDate, in: query, schema: { type: string, format: date } }
+        - {
+            name: limit,
+            in: query,
+            schema: { type: integer, minimum: 1, maximum: 100, default: 50 },
+          }
+        - name: cursor
+          in: query
+          description: The `meta.nextCursor` of the previous page
+          schema: { type: string }
+      responses:
+        '200':
+          description: One page of jobs
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/JobPage' }
+  /jobs/{jobId}:
+    parameters:
+      - { name: jobId, in: path, required: true, schema: { type: integer } }
+    get:
+      operationId: getJob
+      responses:
+        '200':
+          description: The job
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Job' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateJob
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/JobPatch' }
+      responses:
+        '200':
+          description: The updated job
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Job' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: The job is locked by another change
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /contacts/{contactId}:
+    get:
+      operationId: getContact
+      parameters:
+        - { name: contactId, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200':
+          description: The contact
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Contact' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /sites/{siteId}:
+    get:
+      operationId: getSite
+      parameters:
+        - { name: siteId, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200':
+          description: The site
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Site' }
+        '404': { $ref: '#/components/responses/NotFound' }
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      description: Stored in the platform as the secret `acme-api-token`
+  responses:
+    NotFound:
+      description: No such record
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+  schemas:
+    JobStatus:
+      type: string
+      enum: [open, scheduled, on-hold, completed, cancelled]
+    Job:
+      type: object
+      required: [id, reference, title, status, siteId, contactId]
+      properties:
+        id: { type: integer, examples: [42] }
+        reference: { type: string, examples: [JOB-0042] }
+        title: { type: string, examples: [Replace boiler pressure valve] }
+        status: { $ref: '#/components/schemas/JobStatus' }
+        siteId: { type: integer, examples: [7] }
+        contactId: { type: integer, examples: [311] }
+        visitDate: { type: [string, 'null'], format: date }
+        accessNotes: { type: [string, 'null'] }
+        onSiteParking: { type: [boolean, 'null'] }
+        completionReportId: { type: [string, 'null'] }
+        certificate:
+          oneOf:
+            - $ref: '#/components/schemas/Certificate'
+            - type: 'null'
+        updatedAt: { type: string, format: date-time }
+    JobPatch:
+      type: object
+      additionalProperties: false
+      properties:
+        status: { $ref: '#/components/schemas/JobStatus' }
+        visitDate: { type: string, format: date }
+        accessNotes: { type: string, maxLength: 500 }
+        onSiteParking: { type: boolean }
+        completionReportId: { type: string }
+        certificate: { $ref: '#/components/schemas/Certificate' }
+    Certificate:
+      type: object
+      required: [number, expiresOn]
+      additionalProperties: false
+      properties:
+        number: { type: string, examples: [GS-2026-118204] }
+        expiresOn: { type: string, format: date, examples: ['2027-10-14'] }
+    JobPage:
+      type: object
+      required: [items, meta]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Job' }
+        meta:
+          type: object
+          required: [nextCursor]
+          properties:
+            nextCursor: { type: [string, 'null'] }
+    Contact:
+      type: object
+      required: [id, firstName, lastName, email]
+      properties:
+        id: { type: integer, examples: [311] }
+        firstName: { type: string, examples: [Dana] }
+        lastName: { type: string, examples: [Reyes] }
+        email: { type: string, format: email, examples: [dana.reyes@example.test] }
+        phone: { type: [string, 'null'] }
+    Site:
+      type: object
+      required: [id, name, address]
+      properties:
+        id: { type: integer, examples: [7] }
+        name: { type: string, examples: [Harbour Road Depot] }
+        address:
+          type: object
+          required: [line1, city, postcode]
+          properties:
+            line1: { type: string }
+            city: { type: string }
+            postcode: { type: string }
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string }

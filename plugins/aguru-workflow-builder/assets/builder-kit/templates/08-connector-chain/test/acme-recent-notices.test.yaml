@@ -1,0 +1,50 @@
+ref: acme-recent-notices
+
+unit:
+  - it: subtracts 24 hours with the real Date Helper action
+    block: get-cutoff
+    params: { feedUrl: https://notices.acme-jobs.example/feed.xml }
+    ctx:
+      now: { result: '1792440470' }
+    events:
+      - on: get-cutoff
+        expect-out: { result: '2026-10-18T20:07:50' }
+
+e2e:
+  - it: reads only the items published after the cutoff and returns their titles and links
+    params: { feedUrl: https://notices.acme-jobs.example/feed.xml }
+    mocks:
+      - block: get-now
+        out: { result: '1792440470' }
+      - block: read-feed
+        out: 'fixture:./notices-feed.json'
+    events:
+      - on: read-feed
+        expect-in:
+          piece: '@activepieces/piece-rss'
+          version: '0.7.0'
+          action: rss_read_feed
+          input:
+            rss_feed_url: https://notices.acme-jobs.example/feed.xml
+            published_after: '2026-10-18T20:07:50Z'
+            limit: 10
+    post-run:
+      - return:
+          publishedAfter: '2026-10-18T20:07:50Z'
+          items:
+            - title: 'Recall: PV-200 pressure valves'
+              link: https://notices.acme-jobs.example/2026/10/19/valve-recall
+            - title: North depot closes early on Friday
+              link: https://notices.acme-jobs.example/2026/10/19/depot-hours
+      - status: completed
+
+  - it: returns an empty list when nothing was published in the last day
+    params: { feedUrl: https://notices.acme-jobs.example/feed.xml }
+    mocks:
+      - block: get-now
+        out: { result: '1792440470' }
+      - block: read-feed
+        out: { feed: { title: Acme Supplier Notices }, items: [], count: 0, total_in_feed: 14 }
+    post-run:
+      - return: { publishedAfter: '2026-10-18T20:07:50Z', items: [] }
+      - status: completed
