@@ -1,106 +1,62 @@
 # Aguru plugins
 
-Official Aguru marketplace for the ChatGPT desktop app, Codex and Claude Code. Build Aguru workflows with documentation, schemas, tested templates and guided authoring skills. For Claude Code, see [Claude Code](#claude-code).
+Build and validate Aguru workflows in **Claude Code** or **Codex / ChatGPT desktop** with bundled documentation, schemas, tested templates and guided authoring skills.
 
 ## Install Aguru Workflow Builder
 
-You need a current ChatGPT desktop app with local execution, Node.js 24, pnpm and Git. The `codex` command must be available in your terminal. Your workspace administrator may restrict custom marketplaces or plugins.
+Choose your coding agent. Both plugins need Node.js 24, pnpm and Git. Local authoring and validation work without an Aguru account.
 
-1. Add the Aguru marketplace:
-
-   ```sh
-   codex plugin marketplace add aguru-com/plugins
-   ```
-
-2. Open **Plugins** in the desktop app, choose the **Aguru** marketplace, and install **Aguru Workflow Builder**. Restart the app if the marketplace is missing.
-3. Start a new local chat, select the plugin, and send:
-
-   > Set up an Aguru workflow workspace in a new folder named aguru-workflows. Then help me build my first workflow and validate it locally. Do not deploy it or start a live run yet.
-
-Setup creates a new folder and installs its local validation dependencies with pnpm. It refuses to overwrite an existing folder. No Aguru account is needed for local authoring and validation.
-
-This is a public GitHub marketplace. It is separate from OpenAI's public Plugins Directory and requires a desktop environment with local execution.
-
-### Install entirely from the terminal
-
-With a recent Codex CLI:
-
-```sh
-codex plugin marketplace add aguru-com/plugins
-codex plugin add aguru-workflow-builder@aguru-builder
-```
-
-Start a new local chat after installation.
-
-### If the terminal cannot find codex
-
-On macOS, if ChatGPT is installed in `/Applications/ChatGPT.app`, run:
-
-```sh
-/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex plugin marketplace add aguru-com/plugins
-```
-
-Then install from **Plugins → Aguru**. If that executable is missing, install the current Codex CLI using OpenAI's official installation instructions.
-
-### Download instead of using GitHub registration
-
-Download the marketplace ZIP from [Releases](https://github.com/aguru-com/plugins/releases/latest), extract it, and register the extracted folder:
-
-```sh
-codex plugin marketplace add /absolute/path/to/aguru-plugins-1.0.1
-```
-
-Keep that folder in place, then install from **Plugins → Aguru**. This is a local snapshot; download a newer release to update it.
+| Agent | Installation guide | Guided demo |
+| --- | --- | --- |
+| Claude Code | [Install and set up](claude/aguru-workflow-builder/README.md) | [Claude Code walkthrough](claude/aguru-workflow-builder/DEMO.md) |
+| Codex / ChatGPT desktop | [Install and set up](codex/aguru-workflow-builder/README.md) | [Codex walkthrough](codex/aguru-workflow-builder/DEMO.md) |
 
 ## Claude Code
 
-You need Claude Code, Node.js 24, pnpm and Git.
+Run in your terminal:
 
 ```sh
 claude plugin marketplace add aguru-com/plugins
 claude plugin install aguru-workflow-builder@aguru-builder
 ```
 
-Without a GitHub SSH key, set `CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1` before these commands and before updating. Inside a session, `/plugin marketplace add aguru-com/plugins` registers the marketplace and `/plugin` installs **Aguru Workflow Builder**.
+Start a new session and ask:
 
-Start a new session and run `/aguru-workflow-builder:setup` to create a workspace in a new folder. Start later sessions from that workspace. To update, run `claude plugin update aguru-workflow-builder@aguru-builder` and start a new session, or turn on auto-update for **aguru-builder** under **Marketplaces** in `/plugin`.
+> Use /aguru-workflow-builder:setup to create a workflow workspace in a new folder named aguru-workflows. Help me build my first workflow and validate it locally. Do not deploy it or start a live run yet.
 
-To use a release ZIP instead of GitHub, extract it and run `claude plugin marketplace add /absolute/path/to/aguru-plugins-<version>`.
+Start later sessions from the workspace so its rules and schema-check hook load. See the [Claude Code guide](claude/aguru-workflow-builder/README.md) for updates and troubleshooting.
 
-See the [Claude Code plugin guide](claude/aguru-workflow-builder/README.md) and its [walkthrough](claude/aguru-workflow-builder/DEMO.md).
+## Codex / ChatGPT desktop
 
-## Try it
+Use a current desktop app with local execution and a current Codex CLI. Run in your terminal:
 
-After setup, ask:
+```sh
+codex plugin marketplace add aguru-com/plugins
+```
+
+Open **Plugins → Aguru** and install **Aguru Workflow Builder**. Restart the app if Aguru is missing. Start a new local chat, select the plugin, and ask:
+
+> Set up an Aguru workflow workspace in a new folder named aguru-workflows. Help me build my first workflow and validate it locally. Do not deploy it or start a live run yet.
+
+See the [Codex guide](codex/aguru-workflow-builder/README.md) for terminal-only installation, the macOS command fallback, updates and troubleshooting. This GitHub marketplace is separate from OpenAI's public Plugins Directory; workspace administrators may restrict custom marketplaces.
+
+## Your workspace
+
+Both plugins create a new folder and install its validation dependencies with pnpm. Setup refuses to overwrite an existing folder. Existing workspaces keep their copied documentation, schemas and templates when a plugin updates.
+
+After setup, try:
 
 > Create a manually started workflow that accepts a name and logs a greeting. Validate it locally and explain its blocks. Do not deploy or run it.
 
-See the [guided walkthrough](plugins/aguru-workflow-builder/DEMO.md) for more examples.
-
 ## Connect to Aguru
 
-Live deployment and execution require separately provisioned Aguru CLI access and an organization access token. Installing this plugin supplies neither. Contact your Aguru administrator for CLI access before attempting a live deployment.
+Live deployment and execution require separately provisioned Aguru CLI access and an organization access token. Neither plugin includes them. Contact your Aguru administrator for access.
 
-Configure `AGURU_API_URL` and `AGURU_API_KEY` in the environment used by the agent's commands. Never paste access tokens into chat or commit them. Verify access from that same chat using `pnpm exec aguru project ls` in the generated workspace. Terminal exports do not automatically reach an already running desktop app.
+Configure `AGURU_API_URL` and `AGURU_API_KEY` in the environment used by the agent's commands. Never paste access tokens into chat or commit them. Verify access from the same session with `pnpm exec aguru project ls` in the generated workspace. Terminal exports do not update an already running desktop app or Claude Code session.
 
-## Update
+## Repository layout
 
-```sh
-codex plugin marketplace upgrade aguru-builder
-```
-
-Refresh or reinstall the plugin through **Plugins**, then start a new chat. Existing workflow workspaces retain their copied documentation, schemas and templates; create a fresh workspace to use updated copies.
-
-## Troubleshooting
-
-| Problem | Action |
-| --- | --- |
-| Aguru is missing from Plugins | Confirm registration with `codex plugin marketplace list`, then restart the desktop app. |
-| The CLI does not recognize plugin commands | Update the desktop app or Codex CLI. |
-| Setup reports an existing folder | Choose a new folder or reuse an existing builder workspace. Setup does not overwrite files. |
-| Node.js or pnpm is missing | Install Node.js 24 and pnpm, then check they are available to the local chat. |
-| Local validation works but deployment fails | Verify separately supplied CLI access, environment variables and token permissions. |
-| Custom marketplaces are unavailable | Ask your workspace administrator whether custom plugins are permitted. |
+The two distributions are peers: `claude/aguru-workflow-builder/` and `codex/aguru-workflow-builder/`. Each has its own manifest, setup skill and complete workspace assets. The root `.claude-plugin/` and `.agents/plugins/` catalogs point each client to its distribution; the marketplace and plugin names stay the same for both.
 
 ## Support and license
 
@@ -108,4 +64,4 @@ Report installation problems through [GitHub issues](https://github.com/aguru-co
 
 Distributed under [MIT](LICENSE), including the Activepieces notice for connector reference material. This repository distributes built plugin resources; Aguru's private application source is not included.
 
-[Website installation copy](WEBSITE-INSTALLATION.md) · [Maintainer release instructions](MAINTAINING.md) · [Official marketplace documentation](https://developers.openai.com/plugins/build/plugins)
+[Website installation copy](WEBSITE-INSTALLATION.md) · [Maintainer release instructions](MAINTAINING.md)
