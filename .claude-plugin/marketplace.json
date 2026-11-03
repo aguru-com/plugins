@@ -1,8 +1,7 @@
 {
   "name": "aguru-builder",
   "owner": {
-    "name": "Aguru",
-    "url": "https://github.com/aguru-com"
+    "name": "Aguru"
   },
   "description": "Build, validate, deploy and debug Aguru workflows with tested templates.",
   "plugins": [

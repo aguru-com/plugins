@@ -9,6 +9,5 @@
   "homepage": "https://github.com/aguru-com/plugins",
   "repository": "https://github.com/aguru-com/plugins",
   "license": "MIT",
-  "skills": ["./claude/skills", "./shared/skills"],
-  "icon": "./shared/assets/icon.png"
+  "icon": "./assets/icon.png"
 }
