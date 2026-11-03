@@ -49,13 +49,17 @@ ln -s "<absolute-repository-path>/packages/cli/dist/index.js" node_modules/.bin/
 
 Create an org access token in **Settings → Access Tokens**. For the demo, give it `projects:read`, `projects:write`, `workflows:read`, `workflows:write`, `executions:read`, `executions:write` and `installations:read`.
 
-Set `AGURU_API_URL` and `AGURU_API_KEY` in the environment the agent's commands run in, before starting the agent; an already running Claude Code session or desktop app does not see later exports. Never paste the token into chat or commit it. In Bash, a hidden prompt keeps it out of shell history:
+Set `AGURU_API_URL` and `AGURU_API_KEY` in the environment the agent's commands run in, before starting the agent; an already running Claude Code session or desktop app does not see later exports. Never paste the token into chat or commit it. A hidden prompt keeps it out of shell history; the prompt line comes last, so a pasted block cannot answer it:
 
 ```sh
 export AGURU_API_URL=https://api.aguru.com
-read -r -s -p 'Aguru API key: ' AGURU_API_KEY
-printf '\n'
-export AGURU_API_KEY
+printf 'Aguru API key: '; read -r -s AGURU_API_KEY; printf '\n'; export AGURU_API_KEY
+```
+
+Then start `claude` from that terminal. For the ChatGPT desktop app on macOS, quit it and reopen it from that terminal so it inherits both variables:
+
+```sh
+open -a ChatGPT --env "AGURU_API_URL=$AGURU_API_URL" --env "AGURU_API_KEY=$AGURU_API_KEY"
 ```
 
 Verify the connection from the same session with `pnpm exec aguru project ls` in the workspace.
