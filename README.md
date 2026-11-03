@@ -42,6 +42,16 @@ On macOS, if ChatGPT is installed in `/Applications/ChatGPT.app`, run:
 
 Then install from **Plugins → Aguru**. If that executable is missing, install the current Codex CLI using OpenAI's official installation instructions.
 
+### Download instead of using GitHub registration
+
+Download the marketplace ZIP from [Releases](https://github.com/aguru-com/plugins/releases/latest), extract it, and register the extracted folder:
+
+```sh
+codex plugin marketplace add /absolute/path/to/aguru-plugins-1.0.1
+```
+
+Keep that folder in place, then install from **Plugins → Aguru**. This is a local snapshot; download a newer release to update it.
+
 ## Try it
 
 After setup, ask:
