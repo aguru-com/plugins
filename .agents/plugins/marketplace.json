@@ -8,7 +8,7 @@
       "name": "aguru-workflow-builder",
       "source": {
         "source": "local",
-        "path": "./plugins/aguru-workflow-builder"
+        "path": "./"
       },
       "policy": {
         "installation": "AVAILABLE",

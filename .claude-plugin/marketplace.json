@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "aguru-workflow-builder",
-      "source": "./claude/aguru-workflow-builder",
+      "source": "./",
       "description": "Build, validate, deploy and debug Aguru workflows with tested templates.",
       "category": "Developer Tools"
     }

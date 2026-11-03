@@ -1,0 +1,14 @@
+{
+  "name": "aguru-workflow-builder",
+  "version": "1.0.2",
+  "description": "Build, validate, deploy and debug Aguru workflows with tested templates.",
+  "author": {
+    "name": "Aguru"
+  },
+  "displayName": "Aguru Workflow Builder",
+  "homepage": "https://github.com/aguru-com/plugins",
+  "repository": "https://github.com/aguru-com/plugins",
+  "license": "MIT",
+  "skills": ["./claude/skills", "./shared/skills"],
+  "icon": "./shared/assets/icon.png"
+}
