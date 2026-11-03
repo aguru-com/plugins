@@ -17,7 +17,7 @@ Start a new Claude Code session and ask:
 
 > Use /aguru-workflow-builder:setup to create a workflow workspace in a new folder named aguru-workflows. Help me build a workflow and validate it locally. Do not deploy it or start a live run yet.
 
-Start later sessions from your workspace. See the [Claude Code installation guide](https://github.com/aguru-com/plugins/blob/main/claude/README.md) for updates and troubleshooting.
+Start later sessions from your workspace. See the [Claude Code installation guide](https://github.com/aguru-com/plugins#claude-code) for updates and troubleshooting.
 
 ## Codex / ChatGPT desktop
 
@@ -31,7 +31,7 @@ Open **Plugins → Aguru** and install **Aguru Workflow Builder**. Restart the a
 
 > Set up an Aguru workflow workspace in a new folder named aguru-workflows. Help me build a workflow and validate it locally. Do not deploy it or start a live run yet.
 
-See the [Codex installation guide](https://github.com/aguru-com/plugins/blob/main/codex/README.md) for the macOS command fallback, updates and troubleshooting.
+See the [Codex installation guide](https://github.com/aguru-com/plugins#codex--chatgpt-desktop) for the macOS command fallback, updates and troubleshooting.
 
 ## Connect to Aguru
 
