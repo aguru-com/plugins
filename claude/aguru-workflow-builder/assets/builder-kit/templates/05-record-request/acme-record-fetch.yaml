@@ -1,0 +1,34 @@
+ref: acme-record-fetch
+kind: subflow
+label: Fetch Job Record
+description: >
+  State-machine node. Reads the job and its site contact, and reports whether
+  the record still lacks access notes or the parking answer.
+params:
+  input: { type: object, props: { jobId: string } }
+  state: object
+  node: object
+blocks:
+  - id: get-job
+    type: http
+    with:
+      url: '${config.acmeBaseUrl}/jobs/${params.input.jobId}'
+      headers:
+        Authorization: 'Bearer {{ secret("acme-api-token") }}'
+    out: job
+
+  - id: get-contact
+    type: http
+    with:
+      url: '${config.acmeBaseUrl}/contacts/${ctx.job.body.contactId}'
+      headers:
+        Authorization: 'Bearer {{ secret("acme-api-token") }}'
+    out: contact
+return:
+  completion: "${ctx.job.body.accessNotes && ctx.job.body.onSiteParking != null ? 'complete' : 'incomplete'}"
+  stateUpdate:
+    jobReference: '${ctx.job.body.reference}'
+    contact:
+      email: '${ctx.contact.body.email}'
+      firstName: '${ctx.contact.body.firstName}'
+      lastName: '${ctx.contact.body.lastName}'

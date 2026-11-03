@@ -1,0 +1,20 @@
+ref: acme-show-job
+kind: workflow
+label: Show Acme Job
+description: Fetches a job through the acme-fetch-job subflow and logs its status.
+params:
+  jobId: { type: string, description: The Acme job id }
+blocks:
+  - id: fetch-job
+    type: subflow
+    ref: acme-fetch-job
+    params:
+      jobId: '${params.jobId}'
+    out: job
+
+  - id: log-status
+    type: log
+    with:
+      level: info
+      message: 'Job ${ctx.job.reference} is ${ctx.job.status}'
+return: '${ctx.job}'

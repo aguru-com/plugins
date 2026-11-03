@@ -1,0 +1,26 @@
+ref: acme-scm-collect-info
+kind: project
+label: Acme Visit Details
+description: Asks a site contact for visit details over email.
+config:
+  install:
+    - title: Settings
+      fields:
+        visitSubjectTemplate:
+          type: SHORT_TEXT
+          required: true
+          displayName: Visit Email Subject
+          description: 'Subject of the first email. ${jobReference} and ${siteName} are filled in.'
+          defaultValue: 'Visit for ${jobReference} at ${siteName}'
+        senderName:
+          type: SHORT_TEXT
+          required: true
+          displayName: Sender Name
+          description: The name the contact sees the email from
+          defaultValue: Acme Scheduling
+        contactTimeout:
+          type: SHORT_TEXT
+          required: false
+          displayName: Give Up After
+          description: How long to wait for an answer before giving up, e.g. 7d
+          defaultValue: 7d

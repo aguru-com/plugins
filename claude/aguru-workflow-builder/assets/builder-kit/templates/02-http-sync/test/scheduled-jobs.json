@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "statusCode": 200,
+  "statusText": "OK",
+  "headers": { "content-type": "application/json" },
+  "body": {
+    "items": [
+      { "id": 42, "reference": "JOB-0042", "status": "scheduled", "visitDate": "2026-10-01" },
+      { "id": 43, "reference": "JOB-0043", "status": "scheduled", "visitDate": "2026-10-20" },
+      { "id": 44, "reference": "JOB-0044", "status": "scheduled", "visitDate": "2026-09-28" },
+      { "id": 45, "reference": "JOB-0045", "status": "scheduled", "visitDate": null }
+    ],
+    "meta": { "nextCursor": null }
+  },
+  "pagination": { "pagesFetched": 2, "totalItems": 4, "completed": true }
+}

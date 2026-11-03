@@ -1,0 +1,74 @@
+ref: acme-visit-reminders
+kind: workflow
+label: Visit Reminders
+description: >
+  Runs once a day on a schedule. Finds the jobs with a visit tomorrow and
+  starts one remind-contact run per job. That workflow is keyed by job and
+  visit date, so a re-run joins it instead of reminding twice, and it meters
+  each reminder once it is sent.
+params:
+  asOf:
+    type: string
+    required: false
+    description: ISO date (YYYY-MM-DD) to treat as today. Defaults to today.
+blocks:
+  - id: check-subscription
+    type: billing
+    with: { action: check-subscription }
+    out: subscription
+
+  - id: log-inactive
+    type: log
+    if: '${!ctx.subscription.active}'
+    with:
+      level: warn
+      message: 'Subscription is ${ctx.subscription.status}; no reminders sent'
+
+  - id: tomorrow
+    type: js
+    if: '${ctx.subscription.active}'
+    with:
+      code: |
+        const today = params.asOf ? new Date(params.asOf + 'T00:00:00Z') : new Date();
+        return new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    out: visitDate
+
+  - id: list-visits
+    type: http
+    if: '${ctx.subscription.active}'
+    with:
+      url: '${config.acmeBaseUrl}/jobs'
+      headers:
+        Authorization: 'Bearer {{ secret("acme-api-token") }}'
+      query:
+        status: scheduled
+        visitDate: '${ctx.visitDate}'
+      pagination:
+        style: token
+        items: items
+        cursor: meta.nextCursor
+        cursor-param: cursor
+    out: visits
+
+  - id: remind-each
+    type: loop
+    if: '${ctx.subscription.active}'
+    over: '${ctx.visits.body.items}'
+    as: job
+    do:
+      - id: start-reminder
+        type: workflow
+        with:
+          id: acme-remind-contact
+          params:
+            jobId: '${String(ctx.job.id)}'
+            jobReference: '${ctx.job.reference}'
+            contactId: '${String(ctx.job.contactId)}'
+            visitDate: '${ctx.visitDate}'
+            stripeCustomerId: '${ctx.subscription.stripeCustomerId}'
+        out: reminder
+    collect: reminder
+    out: reminders
+return:
+  visitDate: '${ctx.visitDate ?? null}'
+  requested: '${(ctx.reminders ?? []).filter(reminder => reminder != null).length}'

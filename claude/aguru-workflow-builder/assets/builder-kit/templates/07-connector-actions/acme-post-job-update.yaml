@@ -1,0 +1,45 @@
+ref: acme-post-job-update
+kind: workflow
+label: Post Acme Job Update
+description: Posts a job's status to a Slack channel through the installed Slack connector.
+params:
+  jobId: { type: string, description: The Acme job id }
+blocks:
+  - id: get-job
+    type: http
+    with:
+      method: GET
+      url: '${config.acmeBaseUrl}/jobs/${params.jobId}'
+      headers:
+        Authorization: 'Bearer {{ secret("acme-api-token") }}'
+        Accept: application/json
+      fail-on-error: false
+    out: job
+
+  - id: format-update
+    type: activepiece
+    if: '${ctx.job.success}'
+    with:
+      piece: '@activepieces/piece-slack'
+      version: '0.23.1'
+      action: markdownToSlackFormat
+      input:
+        markdown: '**${ctx.job.body.reference}** ${ctx.job.body.title} is now _${ctx.job.body.status}_.'
+    out: update
+
+  - id: post-update
+    type: activepiece
+    if: '${ctx.job.success}'
+    with:
+      piece: '@activepieces/piece-slack'
+      version: '0.23.1'
+      action: send_channel_message
+      credential: '${config.slackCredential}'
+      input:
+        channel: '${config.slackChannelId}'
+        text: '${ctx.update}'
+        unfurlLinks: false
+    out: post
+return:
+  jobId: '${params.jobId}'
+  posted: '${ctx.post != null}'

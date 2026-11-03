@@ -1,0 +1,126 @@
+ref: acme-collect-certificate
+kind: workflow
+label: Collect a Job's Safety Certificate
+description: >
+  Asks a job's site contact for the job's safety certificate as a PDF, reads
+  its number and expiry date with a model, sends anything the model could not
+  read to an operator, and records the certificate on the job.
+params:
+  jobId: { type: string, description: The Acme job id }
+blocks:
+  - id: get-job
+    type: http
+    with:
+      method: GET
+      url: '${config.acmeBaseUrl}/jobs/${params.jobId}'
+      headers:
+        Authorization: 'Bearer {{ secret("acme-api-token") }}'
+        Accept: application/json
+    out: job
+
+  - id: get-contact
+    type: http
+    with:
+      method: GET
+      url: '${config.acmeBaseUrl}/contacts/${ctx.job.body.contactId}'
+      headers:
+        Authorization: 'Bearer {{ secret("acme-api-token") }}'
+        Accept: application/json
+    out: contact
+
+  - id: ask-for-certificate
+    type: scm
+    wait: true
+    with:
+      stakeholder:
+        emails: [{ value: '${ctx.contact.body.email}', is-primary: true }]
+        forename: '${ctx.contact.body.firstName}'
+        surname: '${ctx.contact.body.lastName}'
+      goal: >
+        Get the current safety certificate for job ${ctx.job.body.reference}
+        (${ctx.job.body.title}) as a PDF.
+      impersonate:
+        id: acme-compliance-desk
+        from-name: '${config.senderName}'
+      slots:
+        - name: certificate
+          kind: attachment
+          mime-types: [application/pdf]
+          description: Please reply with the safety certificate for job ${ctx.job.body.reference}, attached as a PDF.
+          self-checks:
+            - Is the attachment a safety certificate for job ${ctx.job.body.reference}, rather than an invoice, a quote or a photo?
+      outcomes: [[certificate]]
+      timeout: '${config.contactTimeout || "7d"}'
+      follow-up:
+        maximum-attempts: 2
+        initial-interval: 3d
+        backoff-coefficient: 1
+        on-exhaustion: abandon
+    out: reply
+
+  - id: read-certificate
+    type: llm
+    if: "${ctx.reply.outcome === 'fulfilled'}"
+    with:
+      model: '${config.certificateReaderModel}'
+      prompt: |
+        The attached PDF was sent as the safety certificate for job
+        ${ctx.job.body.reference}. Report the certificate number and the date
+        it expires, as printed. Use null for anything you cannot read with
+        confidence; never work an expiry date out from another date.
+      schema:
+        type: object
+        required: [certificateNumber, expiresOn]
+        additionalProperties: false
+        properties:
+          certificateNumber:
+            { type: [string, 'null'], description: The certificate number as printed }
+          expiresOn: { type: [string, 'null'], description: The expiry date as YYYY-MM-DD }
+      attachments:
+        - url: 'attachment:${ctx.reply.slots.certificate.value.id}'
+          media-type: '${ctx.reply.slots.certificate.value.mimeType}'
+          file-name: '${ctx.reply.slots.certificate.value.filename}'
+    out: reading
+
+  - id: review-certificate
+    type: hitl
+    if: '${ctx.reading != null && (ctx.reading.certificateNumber == null || ctx.reading.expiresOn == null)}'
+    with:
+      signal: acme-certificate-review
+      reason: >-
+        The model could not read every field of the certificate for job
+        ${ctx.job.body.reference} (${ctx.reply.slots.certificate.value.filename}).
+        Open the file, then record what it says or reject it. Recording needs
+        both the certificate number and the expiry date.
+      fields:
+        - name: decision
+          type: select
+          label: Decision
+          required: true
+          options:
+            - { value: record, label: Record the values below }
+            - { value: reject, label: Reject the certificate }
+        - { name: certificateNumber, type: text, label: Certificate number }
+        - { name: expiresOn, type: text, label: Expiry date, placeholder: YYYY-MM-DD }
+      timeout: 7d
+    out: review
+
+  - id: record-certificate
+    type: http
+    if: "${ctx.reading != null && (ctx.review == null || ctx.review.decision === 'record') && !!(ctx.review?.certificateNumber || ctx.reading.certificateNumber) && !!(ctx.review?.expiresOn || ctx.reading.expiresOn)}"
+    with:
+      method: PATCH
+      url: '${config.acmeBaseUrl}/jobs/${params.jobId}'
+      headers:
+        Authorization: 'Bearer {{ secret("acme-api-token") }}'
+        Content-Type: application/json
+      body:
+        certificate:
+          number: '${ctx.review?.certificateNumber || ctx.reading.certificateNumber}'
+          expiresOn: '${ctx.review?.expiresOn || ctx.reading.expiresOn}'
+    out: recorded
+return:
+  outcome: '${ctx.reply.outcome}'
+  recorded: '${ctx.recorded != null}'
+  certificateNumber: '${ctx.review?.certificateNumber || ctx.reading?.certificateNumber || null}'
+  expiresOn: '${ctx.review?.expiresOn || ctx.reading?.expiresOn || null}'

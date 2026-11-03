@@ -1,0 +1,15 @@
+{
+  "needId": "acme-chase-completion-report.ask-for-report",
+  "outcome": "fulfilled",
+  "slots": {
+    "completionReport": {
+      "status": "filled",
+      "value": {
+        "id": "att-9f1c",
+        "filename": "JOB-0042-completion.pdf",
+        "mimeType": "application/pdf",
+        "size": 182044
+      }
+    }
+  }
+}

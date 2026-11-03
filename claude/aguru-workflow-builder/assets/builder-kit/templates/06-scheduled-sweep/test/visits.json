@@ -1,0 +1,24 @@
+{
+  "success": true,
+  "statusCode": 200,
+  "body": {
+    "items": [
+      {
+        "id": 42,
+        "reference": "JOB-0042",
+        "status": "scheduled",
+        "contactId": 311,
+        "visitDate": "2026-10-16"
+      },
+      {
+        "id": 43,
+        "reference": "JOB-0043",
+        "status": "scheduled",
+        "contactId": 312,
+        "visitDate": "2026-10-16"
+      }
+    ],
+    "meta": { "nextCursor": null }
+  },
+  "pagination": { "pagesFetched": 1, "totalItems": 2, "completed": true }
+}

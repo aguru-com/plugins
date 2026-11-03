@@ -1,6 +1,6 @@
 # Aguru plugins
 
-Official Aguru marketplace for the ChatGPT desktop app and Codex. Build Aguru workflows with documentation, schemas, tested templates and guided authoring skills.
+Official Aguru marketplace for the ChatGPT desktop app, Codex and Claude Code. Build Aguru workflows with documentation, schemas, tested templates and guided authoring skills. For Claude Code, see [Claude Code](#claude-code).
 
 ## Install Aguru Workflow Builder
 
@@ -51,6 +51,23 @@ codex plugin marketplace add /absolute/path/to/aguru-plugins-1.0.1
 ```
 
 Keep that folder in place, then install from **Plugins → Aguru**. This is a local snapshot; download a newer release to update it.
+
+## Claude Code
+
+You need Claude Code, Node.js 24, pnpm and Git.
+
+```sh
+claude plugin marketplace add aguru-com/plugins
+claude plugin install aguru-workflow-builder@aguru-builder
+```
+
+Without a GitHub SSH key, set `CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1` before these commands and before updating. Inside a session, `/plugin marketplace add aguru-com/plugins` registers the marketplace and `/plugin` installs **Aguru Workflow Builder**.
+
+Start a new session and run `/aguru-workflow-builder:setup` to create a workspace in a new folder. Start later sessions from that workspace. To update, run `claude plugin update aguru-workflow-builder@aguru-builder` and start a new session, or turn on auto-update for **aguru-builder** under **Marketplaces** in `/plugin`.
+
+To use a release ZIP instead of GitHub, extract it and run `claude plugin marketplace add /absolute/path/to/aguru-plugins-<version>`.
+
+See the [Claude Code plugin guide](claude/aguru-workflow-builder/README.md) and its [walkthrough](claude/aguru-workflow-builder/DEMO.md).
 
 ## Try it
 

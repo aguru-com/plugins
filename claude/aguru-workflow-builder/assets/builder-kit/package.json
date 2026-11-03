@@ -1,0 +1,14 @@
+{
+  "name": "aguru-workflows",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node scripts/check-definitions.mjs",
+    "mock-api": "prism mock mock-api/openapi.yaml"
+  },
+  "devDependencies": {
+    "@stoplight/prism-cli": "5.16.0",
+    "ajv": "8.18.0",
+    "yaml": "2.8.3"
+  }
+}

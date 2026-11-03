@@ -1,0 +1,76 @@
+ref: acme-ask-visit-details
+kind: workflow
+label: Ask Site Contact for Visit Details
+description: >
+  Asks a job's site contact, by email, for a visit date and time of day, and
+  for any access notes. The conversation itself is written and timed by the
+  platform's stakeholder communication module (SCM); this workflow declares
+  only what to collect and when to give up.
+params:
+  jobReference: { type: string, description: 'The Acme job reference, e.g. JOB-0042' }
+  siteName: { type: string, description: The site the visit is for }
+  contact:
+    type: object
+    description: The site contact the need is addressed to
+    props:
+      email: string
+      firstName: string
+      lastName: string
+blocks:
+  - id: ask-visit-details
+    type: scm
+    wait: true
+    with:
+      stakeholder:
+        emails: [{ value: '${params.contact.email}', is-primary: true }]
+        forename: '${params.contact.firstName}'
+        surname: '${params.contact.lastName}'
+      goal: >
+        Agree a date and a time of day for an engineer's visit for job
+        ${params.jobReference} at ${params.siteName}, and learn anything the
+        engineer needs to get on site.
+      email:
+        subject:
+          template: '${config.visitSubjectTemplate}'
+          vars:
+            jobReference: '${params.jobReference}'
+            siteName: '${params.siteName}'
+      impersonate:
+        id: acme-scheduling-desk
+        from-name: '${config.senderName}'
+      slots:
+        - name: visitDate
+          kind: date
+          description: Which date would suit you for our engineer to visit ${params.siteName} for job ${params.jobReference}?
+          must-be-future: true
+          self-checks:
+            - Did the contact name one specific date for the visit for job ${params.jobReference}?
+            - Is it a date they agreed to, rather than a question, a maybe or a date they cannot do?
+        - name: timeWindow
+          kind: enum
+          options: [morning, afternoon]
+          description: Would a morning or an afternoon visit suit you better?
+          self-checks:
+            - Did the contact choose morning or afternoon for this visit?
+          quick-actions:
+            heading: Morning or afternoon for the job ${params.jobReference} visit at ${params.siteName}?
+            choices:
+              - { value: morning, label: Morning (8am to 12pm) }
+              - { value: afternoon, label: Afternoon (12pm to 5pm) }
+        - name: accessNotes
+          kind: string
+          required: false
+          description: Is there anything our engineer needs to get in, such as a gate code or where to park?
+      outcomes: [[visitDate, timeWindow]]
+      timeout: '${config.contactTimeout || "7d"}'
+      follow-up:
+        maximum-attempts: 3
+        initial-interval: 2d
+        backoff-coefficient: 1
+        on-exhaustion: abandon
+    out: answer
+return:
+  outcome: '${ctx.answer.outcome}'
+  visitDate: '${ctx.answer.slots.visitDate?.value ?? null}'
+  timeWindow: '${ctx.answer.slots.timeWindow?.value ?? null}'
+  accessNotes: '${ctx.answer.slots.accessNotes?.value ?? null}'

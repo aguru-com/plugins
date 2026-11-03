@@ -1,0 +1,31 @@
+ref: acme-record-fetch
+
+e2e:
+  - it: reports a record with access notes and a parking answer as complete
+    params: &params { input: { jobId: '42' }, state: {}, node: { id: fetch } }
+    config: &config { acmeBaseUrl: https://api.acme-jobs.example/v1 }
+    mocks:
+      - block: get-job
+        out: 'fixture:./job-complete.json'
+      - block: get-contact
+        out: 'fixture:./contact-311.json'
+    post-run:
+      - return:
+          completion: complete
+          stateUpdate:
+            jobReference: JOB-0042
+            contact: { email: dana.reyes@example.test, firstName: Dana, lastName: Reyes }
+
+  - it: reports a record missing either answer as incomplete
+    params: *params
+    config: *config
+    mocks:
+      - block: get-job
+        out: 'fixture:./job-incomplete.json'
+      - block: get-contact
+        out: 'fixture:./contact-311.json'
+    events:
+      - on: get-contact
+        expect-in: { url: https://api.acme-jobs.example/v1/contacts/311 }
+    post-run:
+      - return: { completion: incomplete }

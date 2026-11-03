@@ -1,0 +1,28 @@
+ref: acme-record-request
+kind: project
+label: Acme Job Records
+description: Completes job records by asking site contacts for what is missing.
+category: field-service
+tags: [acme, reference-app]
+config:
+  install:
+    - title: Settings
+      fields:
+        acmeBaseUrl:
+          type: SHORT_TEXT
+          required: true
+          displayName: Acme API Base URL
+          description: Base URL of the Acme Jobs API, without a trailing slash
+          defaultValue: https://api.acme-jobs.example/v1
+        senderName:
+          type: SHORT_TEXT
+          required: true
+          displayName: Sender Name
+          description: The name site contacts see our emails from
+          defaultValue: Acme Records
+        contactTimeout:
+          type: SHORT_TEXT
+          required: false
+          displayName: Give Up After
+          description: How long to wait for a site contact before giving up, e.g. 10d
+          defaultValue: 10d
