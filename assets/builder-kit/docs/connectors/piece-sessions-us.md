@@ -26,8 +26,8 @@ Kind: write, not safe to repeat.
 | Input | Type | Required | Default | Notes |
 | --- | --- | --- | --- | --- |
 | `name` | string | yes |  | Session Name. The name of the session. |
-| `startAt` | ISO date-time string | yes | `"2026-10-26T18:20:21.094Z"` | Starts At. Select a date and time. |
-| `plannedEnd` | ISO date-time string | yes | `"2026-10-26T18:20:21.094Z"` | Ends At. Select a date and time. |
+| `startAt` | ISO date-time string | yes | `"2026-11-05T09:55:19.838Z"` | Starts At. Select a date and time. |
+| `plannedEnd` | ISO date-time string | yes | `"2026-11-05T09:55:19.838Z"` | Ends At. Select a date and time. |
 | `timezone` | string | yes |  | Timezone. The timezone which the session will take place. A value the product loads from the provider, such as an id; write the value itself. |
 
 ### `create_event`
@@ -39,8 +39,8 @@ Kind: write, not safe to repeat.
 | Input | Type | Required | Default | Notes |
 | --- | --- | --- | --- | --- |
 | `name` | string | yes |  | Event Name. The name of the event. |
-| `startAt` | ISO date-time string | yes | `"2026-10-26T18:20:21.093Z"` | Starts At. Select a date and time. |
-| `plannedEnd` | ISO date-time string | yes | `"2026-10-26T18:20:21.094Z"` | Ends At. Select a date and time. |
+| `startAt` | ISO date-time string | yes | `"2026-11-05T09:55:19.837Z"` | Starts At. Select a date and time. |
+| `plannedEnd` | ISO date-time string | yes | `"2026-11-05T09:55:19.838Z"` | Ends At. Select a date and time. |
 | `timezone` | string | yes |  | Timezone. The timezone which the session will take place. A value the product loads from the provider, such as an id; write the value itself. |
 
 ### `publish_event`

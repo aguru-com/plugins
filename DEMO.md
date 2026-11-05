@@ -113,7 +113,7 @@ successful run before presenting the demo.
 | Plugin skills are unavailable                      | Install the plugin, then start a new session.                                              |
 | Workspace or linked CLI is missing                 | Ask the agent to check the workspace path and local tools using the setup skill.           |
 | Credentials are missing or the CLI returns 401/403 | Quit, set both variables in the terminal, start the agent again; verify target and scopes. |
-| CLI is unavailable                                 | Provision or link it into this workspace; installing the plugin does not install the CLI.  |
+| CLI is unavailable                                 | Run `pnpm add -D @aguru-com/cli` in the workspace, then retry.                             |
 | Gemini authentication fails                        | Check the `gemini` credential in the org that runs the workflow.                           |
 | Local validation passes but execution fails        | Read the failed block's input, output and error before changing the workflow.              |
 

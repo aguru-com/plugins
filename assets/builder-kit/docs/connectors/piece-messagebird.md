@@ -45,8 +45,8 @@ Kind: search, safe to repeat.
 | Input | Type | Required | Default | Notes |
 | --- | --- | --- | --- | --- |
 | `status` | string | yes |  | Status. The status of the messages to filter by (select "All" for all statuses) One of `"all"`, `"pending"`, `"accepted"`, `"rejected"`, `"processing"`, `"scheduled"`, `"sent"`, `"sending_failed"`, `"delivered"`, `"delivery_failed"`, `"deleted"`, `"skipped"`. |
-| `startAt` | ISO date-time string | yes | `"2026-10-25T18:20:15Z"` | Start Date and Time. The start date and time (in UTC) to filter messages. |
-| `endAt` | ISO date-time string | yes | `"2026-10-26T18:20:15Z"` | End Date and Time. The end date and time (in UTC) to filter messages, should not exceed 7 days from start date. |
+| `startAt` | ISO date-time string | yes | `"2026-11-04T09:55:14Z"` | Start Date and Time. The start date and time (in UTC) to filter messages. |
+| `endAt` | ISO date-time string | yes | `"2026-11-05T09:55:14Z"` | End Date and Time. The end date and time (in UTC) to filter messages, should not exceed 7 days from start date. |
 | `pageToken` | string | no |  | Next Page Token. Token for pagination to fetch next set of results after 1000 messages. |
 
 ### `custom_api_call`

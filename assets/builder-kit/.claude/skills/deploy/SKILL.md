@@ -6,7 +6,10 @@ description: Import workflow definitions into the user's Aguru org. Use when the
 # Deploy
 
 Read `docs/deploy.md`. Needs `AGURU_API_URL` and `AGURU_API_KEY` in the
-environment; never print the key.
+environment; never print the key. If `pnpm exec aguru --help` reports that
+`aguru` is missing, install it in the workflow workspace with
+`pnpm add -D @aguru-com/cli`, then verify access with
+`pnpm exec aguru project ls` before continuing.
 
 1. **Check first:** the schema check must pass on every definition
    (`pnpm check <files>`).

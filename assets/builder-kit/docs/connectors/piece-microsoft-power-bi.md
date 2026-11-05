@@ -51,7 +51,7 @@ Kind: write, not safe to repeat.
 | --- | --- | --- | --- | --- |
 | `dataset_id` | string | yes |  | Dataset. Select a dataset. A value the product loads from the provider, such as an id; write the value itself. |
 | `table_name` | string | yes |  | Table. Select a table. A value the product loads from the provider, such as an id; write the value itself. |
-| `rows` | JSON | yes | `{"rows":[{"Id":1,"Name":"Example","Value":42.5,"Timestamp":"2026-10-26T18:20:15.739Z"}]}` | Rows. JSON object containing the rows to add to the table. Each row must match your table schema. |
+| `rows` | JSON | yes | `{"rows":[{"Id":1,"Name":"Example","Value":42.5,"Timestamp":"2026-11-05T09:55:15.314Z"}]}` | Rows. JSON object containing the rows to add to the table. Each row must match your table schema. |
 | `skip_refresh` | boolean | no | `false` | Skip Dataset Refresh. Skip refreshing the dataset after pushing data (only applies to Push and PushStreaming modes) |
 
 ### `refresh_dataset`

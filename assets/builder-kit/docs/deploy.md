@@ -3,6 +3,24 @@
 How a workflow gets from this repo onto the platform, and how to start a run
 and read what it did.
 
+## Install the CLI
+
+From your workflow workspace, install the public CLI before the first
+deployment or live run:
+
+```sh
+pnpm add -D @aguru-com/cli
+pnpm exec aguru --help
+```
+
+Use Node.js 24.22.1 or later and pnpm. This installs the `aguru` command in
+this workspace; run it through `pnpm exec aguru`. The npm builder kit and
+Claude Code/Codex plugin do not include the CLI. Local authoring and schema
+checks work without it. Update it with `pnpm update @aguru-com/cli`.
+
+After configuring the access token below, verify the connection with
+`pnpm exec aguru project ls`. Installing the CLI grants no platform access.
+
 ## API keys
 
 Create a key in the product under Settings → Access Tokens, in your own org. Give
@@ -119,6 +137,4 @@ and fall back to the routes above until they ship.
 
 - `aguru workflow validate <dir>`: the platform's own loader and analysis,
   without importing.
-- The `aguru` CLI on npm. Until it is published, your Aguru contact gives
-  you its build.
 - Running one block live, with real side effects.

@@ -283,7 +283,7 @@ Kind: not safe to repeat.
 | `contactXref` | string | no |  | External Contact ID. External Contact Reference (ID) . Will be used for looking a client. |
 | `status` | string | yes | `"Draft"` | Status. One of `"Draft"`, `"Final"`, `"Paid"`, `"Sent"`. |
 | `invoiceNo` | number | yes | `0` | Invoice No.. |
-| `date` | ISO date-time string | yes | `"2026-10-26T18:20:13.338Z"` | Date of the Invoice. should be like this: 2024-06-11T11:11:41Z. |
+| `date` | ISO date-time string | yes | `"2026-11-05T09:55:13.687Z"` | Date of the Invoice. should be like this: 2024-06-11T11:11:41Z. |
 | `dueDate` | ISO date-time string | yes |  | Due Date of the Invoice. should be like this: 2024-06-11T11:11:41Z. |
 | `currencyId` | string | yes | `"USD"` | Currency Id. One of `"USD"`, `"JPY"`, `"IND"`, `"EUR"`, `"GBP"`, `"AUD"`, `"CAD"`, `"CHF"`, `"CNY"`, `"SEK"`, `"NZD"`. |
 | `grandTotal` | number | no | `0` | Grand Total. |
@@ -324,7 +324,7 @@ Kind: not safe to repeat.
 | `productCode` | string | no |  | Product Code. Product Code. We will look up the product. |
 | `itemDescription` | string | no |  | Description. |
 | `sortOrder` | number | no | `0` | Sort Order. |
-| `transactionDate` | ISO date-time string | yes | `"2026-10-26T18:20:13.340Z"` | Transaction Date. should be like this: 2024-06-11T11:11:41Z. |
+| `transactionDate` | ISO date-time string | yes | `"2026-11-05T09:55:13.694Z"` | Transaction Date. should be like this: 2024-06-11T11:11:41Z. |
 | `transactionDescription` | string | no |  | Transaction Description. |
 | `amount` | number | no | `0` | Amount. |
 | `gatewayName` | string | no |  | Gateway Name. |
