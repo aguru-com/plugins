@@ -40,11 +40,10 @@ Setup creates the folder, installs its validation dependencies with pnpm and ref
 
 ## Connect to Aguru
 
-Live deployment and execution require separately provisioned Aguru CLI access and an organization access token; the plugin includes neither. Contact your Aguru administrator for CLI access and provision it on the same host. Repository contributors can link a locally built CLI from the workspace:
+Live deployment and execution require the Aguru CLI and an organization access token. When you are ready for live work, install the CLI in your workflow workspace (Node.js 24.22.1 or later):
 
 ```sh
-chmod +x "<absolute-repository-path>/packages/cli/dist/index.js"
-ln -s "<absolute-repository-path>/packages/cli/dist/index.js" node_modules/.bin/aguru
+pnpm add -D @aguru-com/cli
 ```
 
 Create an org access token in **Settings → Access Tokens**. For the demo, give it `projects:read`, `projects:write`, `workflows:read`, `workflows:write`, `executions:read`, `executions:write` and `installations:read`.
@@ -75,14 +74,14 @@ Start a new session afterwards. Existing workspaces keep their copied documentat
 
 ## Troubleshooting
 
-| Problem                                     | Action                                                                                  |
-| ------------------------------------------- | --------------------------------------------------------------------------------------- |
-| Registration fails over SSH in Claude Code  | Set `CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1`, then retry.                                    |
-| Aguru is missing from Codex **Plugins**     | Run `codex plugin marketplace list`, then restart the desktop app.                      |
-| Skills are missing                          | Start a new session; in Claude Code, `/aguru-workflow-builder:` should autocomplete.    |
-| Setup reports an existing folder            | Choose a new folder or use your existing builder workspace.                             |
-| Node.js or pnpm is missing                  | Install Node.js 24 and pnpm, and check the agent can run them.                          |
-| Local validation works but deployment fails | Verify the separately supplied CLI access, environment variables and token permissions. |
+| Problem                                     | Action                                                                                         |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Registration fails over SSH in Claude Code  | Set `CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1`, then retry.                                           |
+| Aguru is missing from Codex **Plugins**     | Run `codex plugin marketplace list`, then restart the desktop app.                             |
+| Skills are missing                          | Start a new session; in Claude Code, `/aguru-workflow-builder:` should autocomplete.           |
+| Setup reports an existing folder            | Choose a new folder or use your existing builder workspace.                                    |
+| Node.js or pnpm is missing                  | Install Node.js 24 and pnpm, and check the agent can run them.                                 |
+| Local validation works but deployment fails | Install `@aguru-com/cli` in the workspace; verify environment variables and token permissions. |
 
 ## Layout
 

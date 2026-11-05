@@ -116,7 +116,7 @@ Kind: write, not safe to repeat.
 | Input | Type | Required | Default | Notes |
 | --- | --- | --- | --- | --- |
 | `externalId` | string | yes |  | N° du dossier de formation. Sélectionner la propriété {externalId} du dossier de formation. |
-| `date` | ISO date-time string | no | `"2026-10-26"` | Sortie de formation le. Date au format YYYY-MM-DD. |
+| `date` | ISO date-time string | no | `"2026-11-05"` | Sortie de formation le. Date au format YYYY-MM-DD. |
 | `code` | string | yes |  | Raison de la sortie de formation. Sélectionner la raison de sortie de formation. A value the product loads from the provider, such as an id; write the value itself. |
 | `absenceDuration` | number | no | `0` | durée d'absence. La durée d'une éventuelle absence en heures. 0 si aucune absence. |
 
@@ -133,7 +133,7 @@ Kind: write, not safe to repeat.
 | `forceMajeureAbsence` | string | no | `false` | Absence pour raison de force majeure. Si absence pour raison de force majeure, 'Oui', sinon 'Non'. One of `true`, `false`. |
 | `trainingDuration` | number | no | `0` | Durée totale de la formation. Précise la durée totale de la formation afin de calculer le % d'absence. Si rien n'est précisé, récupère la durée dans le trainingActionInfo/duration. |
 | `code` | string | yes |  | Raison de la sortie de formation. Sélectionner la raison de sortie de formation. A value the product loads from the provider, such as an id; write the value itself. |
-| `date` | ISO date-time string | no | `"2026-10-26"` | Sortie de formation le. Date du sortie de formation au format YYYY-MM-DD. Par défaut, date du jour. Si la date a déjà été indiquée au moment du terminate, il n'est pas nécessaire de la repréciser. |
+| `date` | ISO date-time string | no | `"2026-11-05"` | Sortie de formation le. Date du sortie de formation au format YYYY-MM-DD. Par défaut, date du jour. Si la date a déjà été indiquée au moment du terminate, il n'est pas nécessaire de la repréciser. |
 
 ### `declareRegistrationFolderIntraining`
 

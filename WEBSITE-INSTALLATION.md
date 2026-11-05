@@ -37,6 +37,12 @@ See the [Codex installation guide](https://github.com/aguru-com/plugins#codex--c
 
 Both plugins create a new workspace and install its validation dependencies. They refuse to overwrite an existing folder.
 
-Deployment and live runs require separately provisioned Aguru CLI access and an organization access token. Contact your Aguru administrator for access.
+When you are ready to deploy or run a workflow, use Node.js 24.22.1 or later and install the Aguru CLI inside the workflow workspace:
+
+```sh
+pnpm add -D @aguru-com/cli
+```
+
+Create an organization access token in Aguru under **Settings → Access Tokens**. Follow the [connection guide](https://github.com/aguru-com/plugins#connect-to-aguru) to configure the token in your agent's environment.
 
 Need help? See the [Aguru marketplace](https://github.com/aguru-com/plugins#install-aguru-workflow-builder).

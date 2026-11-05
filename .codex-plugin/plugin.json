@@ -1,6 +1,6 @@
 {
   "name": "aguru-workflow-builder",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Build, validate, deploy and debug Aguru workflows with tested templates.",
   "author": {
     "name": "Aguru"
@@ -8,7 +8,7 @@
   "interface": {
     "displayName": "Aguru Workflow Builder",
     "shortDescription": "Build and run Aguru workflows",
-    "longDescription": "Author and validate Aguru workflows in a local workspace using bundled documentation, JSON Schemas and tested templates. Create HTTP integrations, connector actions, document processing and stakeholder conversations with guided skills. Requires the ChatGPT desktop app with local execution, Node.js 24 and pnpm. Local authoring and validation work without an Aguru account. Deployment and live runs require separately provisioned Aguru CLI access and an Aguru organization access token; neither is included. The plugin creates a new workspace and does not overwrite an existing folder.",
+    "longDescription": "Author and validate Aguru workflows in a local workspace using bundled documentation, JSON Schemas and tested templates. Create HTTP integrations, connector actions, document processing and stakeholder conversations with guided skills. Requires the ChatGPT desktop app with local execution, Node.js 24 and pnpm. Local authoring and validation work without an Aguru account. For deployment and live runs, install @aguru-com/cli in your workspace and configure an Aguru organization access token. The plugin creates a new workspace and does not overwrite an existing folder.",
     "developerName": "Aguru",
     "category": "Developer Tools",
     "logo": "./assets/icon.png",

@@ -38,8 +38,9 @@ pnpm on this machine.
    files. Check the connection with `pnpm exec aguru project ls` only when
    credentials are configured. Missing credentials do not block local
    authoring and schema checks; report that live verification is still
-   outstanding. If the Aguru CLI is unavailable, report the missing tool
-   rather than inventing commands.
+   outstanding. If the Aguru CLI is unavailable and live work is needed, install it
+   in the workspace with `pnpm add -D @aguru-com/cli`, then retry the
+   connection check.
 6. Report the workspace path and whether local tooling and the platform
    connection are ready. Tell the user to start later sessions from the
    workspace folder so the agent loads its rules. Continue with the requested
