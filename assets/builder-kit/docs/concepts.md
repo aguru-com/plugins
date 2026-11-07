@@ -36,7 +36,9 @@ and subflow in a run reads it directly. An unset field reads as `undefined`.
 ## Credentials and connectors
 
 - **Secrets** are stored in the org's credential store and named in YAML as
-  `{{ secret("name") }}`. The engine never sees their values.
+  `{{ secret("name") }}`. The engine never sees their values. A credential
+  is a static or self-refreshing bearer token or an API key;
+  [credentials.md](credentials.md) maps an API's authentication scheme to one.
 - **Model settings** (`model` on an `llm` block) name a provider, a model
   and the credential holding its API key, usually from an `LLM_MODEL` field
   in the `env` tier.

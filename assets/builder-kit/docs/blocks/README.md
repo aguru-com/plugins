@@ -8,7 +8,7 @@ Every block takes `id` (kebab-case, unique in the definition), `type`, and optio
 
 | Block | Calls out | Templates |
 | --- | --- | --- |
-| [`http`](http.md) | yes | 01-http-basics, 02-http-sync, 04-scm-follow-up-escalation, 05-record-request, 06-scheduled-sweep, 07-connector-actions, 09-document-intake |
+| [`http`](http.md) | yes | 01-http-basics, 02-http-sync, 04-scm-follow-up-escalation, 05-record-request, 06-scheduled-sweep, 07-connector-actions, 09-document-intake, 11-oauth-client-credentials |
 | [`activepiece`](activepiece.md) | yes | 07-connector-actions, 08-connector-chain |
 | [`llm`](llm.md) | yes | 09-document-intake, 10-llm-classification |
 | [`email`](email.md) | yes |  |

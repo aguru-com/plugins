@@ -7,23 +7,24 @@ schema check and the platform itself. When those disagree with your expectations
 
 ## Read before you write
 
-| Task                                          | Read                                                         |
-| --------------------------------------------- | ------------------------------------------------------------ |
-| Any workflow change                           | `docs/platform-rules.md`, then `docs/yaml.md` for the blocks |
-| Choosing or using a block                     | `docs/blocks/README.md` and the block's page                 |
-| Expressions (`${...}`)                        | `docs/wfexpr.md`                                             |
-| Calling a third-party service (Slack, a CRM)  | `docs/connectors/README.md`, templates 07 and 08             |
-| Talking to a person outside the org           | `docs/scm.md`, template 03 or 04                             |
-| Reading a document someone sends              | `docs/blocks/llm.md`, template 09                            |
-| Calling an LLM; configuring its model and key | `docs/blocks/llm.md`, template 10 (including org setup)      |
-| Named stages, rework, several endings         | `docs/state-machine.md`, template 05                         |
-| Configuration, installations, how runs behave | `docs/concepts.md`                                           |
-| Configuration fields, setup wizard, schedules | `docs/manifest.md`                                           |
-| Deploying, starting and reading runs          | `docs/deploy.md`                                             |
+| Task                                           | Read                                                         |
+| ---------------------------------------------- | ------------------------------------------------------------ |
+| Any workflow change                            | `docs/platform-rules.md`, then `docs/yaml.md` for the blocks |
+| Choosing or using a block                      | `docs/blocks/README.md` and the block's page                 |
+| Expressions (`${...}`)                         | `docs/wfexpr.md`                                             |
+| Calling a third-party service (Slack, a CRM)   | `docs/connectors/README.md`, templates 07 and 08             |
+| Authenticating to an API (tokens, OAuth, keys) | `docs/credentials.md`, template 11                           |
+| Talking to a person outside the org            | `docs/scm.md`, template 03 or 04                             |
+| Reading a document someone sends               | `docs/blocks/llm.md`, template 09                            |
+| Calling an LLM; configuring its model and key  | `docs/blocks/llm.md`, template 10 (including org setup)      |
+| Named stages, rework, several endings          | `docs/state-machine.md`, template 05                         |
+| Configuration, installations, how runs behave  | `docs/concepts.md`                                           |
+| Configuration fields, setup wizard, schedules  | `docs/manifest.md`                                           |
+| Deploying, starting and reading runs           | `docs/deploy.md`                                             |
 
 ## Start from a template
 
-`templates/` holds ten tested projects in the fictional Acme Jobs domain,
+`templates/` holds eleven tested projects in the fictional Acme Jobs domain,
 each adding one idea. Copy the nearest one, then change it.
 
 | Template                      | Start here for                                        |
@@ -38,6 +39,7 @@ each adding one idea. Copy the nearest one, then change it.
 | `08-connector-chain`          | Chained connector actions, dates, no credentials      |
 | `09-document-intake`          | A document by email, read by a model, reviewed        |
 | `10-llm-classification`       | A complete LLM project, including model and key setup |
+| `11-oauth-client-credentials` | An API behind OAuth2 client credentials; token setup  |
 
 ## How to work here, in order
 

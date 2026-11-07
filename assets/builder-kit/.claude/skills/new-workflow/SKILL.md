@@ -30,6 +30,11 @@ description: Start a new Aguru workflow or subflow from the nearest tested templ
    `docs/blocks/`. Prefer native blocks; a `js` block needs a reason. For a
    third-party service, find its connector in `docs/connectors/README.md`
    and pick the action from its page (template 07).
+   For each API you call with `http`, find how it authenticates (its OpenAPI
+   `securitySchemes` or its authentication docs) and pick the credential and
+   header from the table in `docs/credentials.md`. An API that hands out a
+   client id and secret takes a refreshing Bearer Token (template 11), never
+   a token request written in YAML.
 5. **Write the YAML.** Run `pnpm check <changed-yaml-files>` after edits and
    fix what it reports. Re-read `docs/platform-rules.md` against what you wrote.
 6. **Declare configuration** in `manifest.yaml`: per-org values the setup
@@ -39,9 +44,11 @@ description: Start a new Aguru workflow or subflow from the nearest tested templ
    fields go in `install`. See `docs/manifest.md`.
    For an `llm` block, follow template 10's complete setup example: declare
    an `LLM_MODEL` field in `env` and pass it whole to `model`; its `api-key`
-   names a provider-key credential the org stores. Check that the credential
-   exists before a live run. Deployment does not provision it. If settings
-   access is unavailable, give the user the exact fields to create in the
-   product.
+   names a provider-key credential the org stores.
+   Deployment provisions no credential. Before a live run, give the user a
+   setup table for every credential the project needs, including those a
+   refreshing credential's token request names, as `docs/credentials.md`
+   describes, and wait for them to confirm it is saved
+   (and, for a refreshing one, that **Test Connection** passed).
 7. **Finish with the `deploy` and `run` skills.** The workflow is done when a live run
    of each of its endings passes.

@@ -11,7 +11,40 @@ servers:
   - url: https://api.acme-jobs.example/v1
 security:
   - bearer: []
+  - oauth: []
 paths:
+  /oauth/token:
+    post:
+      operationId: issueToken
+      summary: Trade client credentials for an access token
+      security:
+        - clientBasic: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [grant_type]
+              properties:
+                grant_type: { type: string, enum: [client_credentials] }
+      responses:
+        '200':
+          description: A bearer token for every other operation
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [access_token, token_type, expires_in]
+                properties:
+                  access_token: { type: string }
+                  token_type: { type: string, enum: [Bearer] }
+                  expires_in: { type: integer, description: Lifetime in seconds }
+        '401':
+          description: Unknown client id or secret
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
   /jobs:
     get:
       operationId: listJobs
@@ -39,6 +72,12 @@ paths:
       - { name: jobId, in: path, required: true, schema: { type: integer } }
     get:
       operationId: getJob
+      parameters:
+        - name: X-Acme-Account
+          in: header
+          required: false
+          description: The account to act on; defaults to the token's own account
+          schema: { type: string }
       responses:
         '200':
           description: The job
@@ -95,6 +134,17 @@ components:
       type: http
       scheme: bearer
       description: Stored in the platform as the secret `acme-api-token`
+    oauth:
+      type: oauth2
+      description: Stored in the platform as the refreshing bearer `acme-oauth`
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.acme-jobs.example/v1/oauth/token
+          scopes: {}
+    clientBasic:
+      type: http
+      scheme: basic
+      description: The client id and secret, as HTTP Basic, on the token request only
   responses:
     NotFound:
       description: No such record

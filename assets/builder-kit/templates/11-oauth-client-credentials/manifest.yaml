@@ -1,0 +1,19 @@
+ref: acme-oauth-client-credentials
+kind: project
+label: Acme OAuth Client Credentials
+description: Reads a job from the Acme Jobs API with an OAuth2 client-credentials token.
+config:
+  install:
+    - title: Settings
+      fields:
+        acmeBaseUrl:
+          type: SHORT_TEXT
+          required: true
+          displayName: Acme API Base URL
+          description: Base URL of the Acme Jobs API, without a trailing slash. Must be the environment the acme-oauth credential's token endpoint issues tokens for.
+          defaultValue: https://api.acme-jobs.example/v1
+        acmeAccountId:
+          type: SHORT_TEXT
+          required: true
+          displayName: Acme Account ID
+          description: The Acme account every request acts on, sent as the X-Acme-Account header

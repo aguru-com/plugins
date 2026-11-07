@@ -20,18 +20,18 @@ An `scm` block fails with `ScmNotConfigured` unless the organization's SCM
 configuration (Conversations page, Settings tab) names an **LLM connector** and an
 **email connector**. Other settings, each overridable per stakeholder:
 
-| Setting                               | Default        | Effect                                                    |
-| ------------------------------------- | -------------- | --------------------------------------------------------- |
-| Require approval for asks and answers | **on**         | Composed asks and replies wait for an operator.           |
-| SMS connector                         | none           | None: SCM conversations are email only.                   |
-| WhatsApp connector, preferred channel | none / email   | None: SCM conversations are email only.                   |
-| Need buffer (quiet / maximum)         | 5 s / 30 s     | New needs wait this long so one message carries them all. |
-| Reply buffer (quiet / maximum)        | 5 min / 15 min | Inbound messages wait this long to be read as one turn.   |
-| Conversation message limit            | 50             | How much stored history a fresh conversation reads.       |
+| Setting                                | Default        | Effect                                                     |
+| -------------------------------------- | -------------- | ---------------------------------------------------------- |
+| Require approval for composed messages | **on**         | Composed asks, replies and reminders wait for an operator. |
+| SMS connector                          | none           | None: SCM conversations are email only.                    |
+| WhatsApp connector, preferred channel  | none / email   | None: SCM conversations are email only.                    |
+| Need buffer (quiet / maximum)          | 5 s / 30 s     | New needs wait this long so one message carries them all.  |
+| Reply buffer (quiet / maximum)         | 5 min / 15 min | Inbound messages wait this long to be read as one turn.    |
+| Conversation message limit             | 50             | How much stored history a fresh conversation reads.        |
 
 **Approval is the usual reason a new workflow "does nothing":** the message
-waits in the Approvals queue. Reminders, configured bodies and escalations are
-never held. Buffers delay the first email and the
+waits in the Approvals queue, and so does every reminder. Configured bodies and
+escalations are never held. Buffers delay the first email and the
 reading of each reply; shorten them when latency matters more than batching.
 
 ## The `scm` block

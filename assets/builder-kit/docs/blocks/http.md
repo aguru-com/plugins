@@ -132,4 +132,4 @@ It calls out, so wftest guards it: a test that reaches it fails unless a mock, a
 
 ## Used in
 
-[01-http-basics](../../templates/01-http-basics/README.md), [02-http-sync](../../templates/02-http-sync/README.md), [04-scm-follow-up-escalation](../../templates/04-scm-follow-up-escalation/README.md), [05-record-request](../../templates/05-record-request/README.md), [06-scheduled-sweep](../../templates/06-scheduled-sweep/README.md), [07-connector-actions](../../templates/07-connector-actions/README.md), [09-document-intake](../../templates/09-document-intake/README.md)
+[01-http-basics](../../templates/01-http-basics/README.md), [02-http-sync](../../templates/02-http-sync/README.md), [04-scm-follow-up-escalation](../../templates/04-scm-follow-up-escalation/README.md), [05-record-request](../../templates/05-record-request/README.md), [06-scheduled-sweep](../../templates/06-scheduled-sweep/README.md), [07-connector-actions](../../templates/07-connector-actions/README.md), [09-document-intake](../../templates/09-document-intake/README.md), [11-oauth-client-credentials](../../templates/11-oauth-client-credentials/README.md)
