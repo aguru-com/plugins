@@ -1,0 +1,21 @@
+ref: acme-oauth-fetch-job
+kind: workflow
+label: Fetch Acme Job With OAuth
+description: Reads one job from the Acme Jobs API with a token the platform fetches and refreshes.
+params:
+  jobId: { type: string, description: The Acme job id }
+blocks:
+  - id: get-job
+    type: http
+    with:
+      method: GET
+      url: '${config.acmeBaseUrl}/jobs/${params.jobId}'
+      headers:
+        Authorization: 'Bearer {{ secret("acme-oauth") }}'
+        X-Acme-Account: '${config.acmeAccountId}'
+        Accept: application/json
+    out: job
+return:
+  id: '${String(ctx.job.body.id)}'
+  reference: '${ctx.job.body.reference}'
+  status: '${ctx.job.body.status}'

@@ -81,6 +81,13 @@ something behaves in a way the reference does not explain.
 - **Refer to secrets by name**: `{{ secret("acme-api-token") }}`. Never put a
   value in YAML. The engine never sees it; the value is substituted just
   before the request leaves.
+- **`secret()` returns the bare value.** Write the header and its prefix
+  yourself (`Authorization: 'Bearer {{ secret("x") }}'`); an API Key's
+  Header Name is not applied by `http`. See [credentials.md](credentials.md).
+- **No credential is provisioned for you.** Neither deploy nor the manifest
+  creates one; a person saves it in the product before the first live run.
+- **A refreshing token and the API must be the same environment.** A token
+  from a sandbox token endpoint fails with `401` against production.
 - An `llm` block's `model.api-key` and a send block's `connector-id` name
   records in your org. They are looked up when the block runs, so a run is
   the first place a wrong name shows up.

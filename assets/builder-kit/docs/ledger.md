@@ -116,12 +116,15 @@ These blocks can run in a workflow with the same `orderId` parameter:
   type: log
   if: '${ctx.saved.missing.length === 0}'
   with:
-    message: 'Approved warehouse: ${ctx.saved.entries[0].payload.warehouseRef}'
+    message: 'Approved warehouse: ${ctx.saved.entries["order-approved"].payload.warehouseRef}'
 ```
 
-`get` returns the entries it found and a `missing` list for keys it did not
-find. Check that list before using an entry. A failed read is an error; it
-must not be interpreted as an absent fact.
+`get` returns an `entries` map indexed by ledger key and a `missing` list
+for keys it did not find. Each map value is the full entry, including its
+`payload`, ID and revision. Repeated requested keys produce one map entry;
+if no keys are found, `entries` is `{}`. The `missing` list contains each
+absent key once, in first-request order. Check it before using an entry. A failed read is an error; it must not be interpreted
+as an absent fact.
 
 Use `check` when you only need to know whether facts exist:
 
@@ -273,11 +276,11 @@ blocks:
       method: POST
       url: '${config.approvalsBaseUrl}/approvals'
       headers:
-        Idempotency-Key: '${ctx.facts.entries[0].id}'
+        Idempotency-Key: '${ctx.facts.entries[params.entryKey].id}'
       body:
         orderId: '${params.scope}'
-        status: '${ctx.facts.entries[0].payload.status}'
-        warehouseRef: '${ctx.facts.entries[0].payload.warehouseRef}'
+        status: '${ctx.facts.entries[params.entryKey].payload.status}'
+        warehouseRef: '${ctx.facts.entries[params.entryKey].payload.warehouseRef}'
     out: response
 return:
   projected: '${ctx.response?.success === true && ctx.response?.body?.stored === true}'
@@ -475,7 +478,7 @@ sent to the ledger service.
 | ------------------ | --------------------------------------- | -------------------------------------------------- |
 | `open`             | None                                    | `duplicate`                                        |
 | `append`           | `key`, `payload`, optional `generation` | `entry`, `duplicate`                               |
-| `get`              | `keys`                                  | `entries` in requested order, `missing` keys       |
+| `get`              | `keys`                                  | `entries` map keyed by ledger key, `missing` keys  |
 | `check`            | `keys`                                  | `checks`, one `{ key, has }` per requested key     |
 | `list`             | Optional `after` revision and `limit`   | Revision-ordered `entries`, optional `next` cursor |
 | `claim` (optional) | `key`, `expectedGeneration`             | Transition `entry`, `duplicate`                    |
@@ -508,13 +511,13 @@ context. Duplicate equivalence excludes generated timestamps and provenance.
 
 ### Limits and JSON handling
 
-| Input or response    | Limit                                            |
-| -------------------- | ------------------------------------------------ |
-| Scope and entry keys | 512 UTF-8 bytes each                             |
-| Payload              | 64 KiB of encoded JSON                           |
-| `get` / `check`      | 1–100 keys                                       |
-| `get` entries        | 1 MiB encoded, including repeated requested keys |
-| `list` page          | At most 100 entries and 1 MiB encoded entries    |
+| Input or response    | Limit                                         |
+| -------------------- | --------------------------------------------- |
+| Scope and entry keys | 512 UTF-8 bytes each                          |
+| Payload              | 64 KiB of encoded JSON                        |
+| `get` / `check`      | 1–100 keys                                    |
+| `get` entries        | 1 MiB encoded map, including its keys         |
+| `list` page          | At most 100 entries and 1 MiB encoded entries |
 
 `list` defaults to `after: 0` and `limit: 100`.
 
@@ -525,9 +528,13 @@ Use durable object-store references for large evidence; never store credentials,
 PDFs or expiring signed URLs as durable results.
 
 JSON text must be well-formed Unicode without NUL, as required by PostgreSQL.
-Payload parsing removes object keys named `__proto__` at every nesting level,
-including inside arrays. Those keys are absent from storage and results;
-string values containing `"__proto__"` are preserved. Duplicate comparison
+Ledger JSON parsing removes object properties named `__proto__`, `constructor`
+and `prototype` at every nesting level, including inside arrays. These
+properties are absent from stored payloads and returned JSON. Entry names
+`__proto__`, `constructor` and `prototype` are rejected by append, claim, get
+and check, so a fact cannot be written under a name that workflows cannot
+read. This restriction does not apply to scope names. Ordinary string values, including
+strings equal to these names, are preserved. Duplicate comparison
 uses the parsed payload. Unsupported JSON values are rejected.
 
 ### Access and retention

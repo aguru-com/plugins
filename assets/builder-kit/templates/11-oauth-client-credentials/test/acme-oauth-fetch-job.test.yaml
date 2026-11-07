@@ -1,0 +1,27 @@
+ref: acme-oauth-fetch-job
+
+unit:
+  - it: sends the OAuth token and the configured account
+    block: get-job
+    params: { jobId: '42' }
+    config: { acmeBaseUrl: https://api.acme-jobs.example/v1, acmeAccountId: acct-17 }
+    events:
+      - on: get-job
+        expect-in:
+          method: GET
+          url: https://api.acme-jobs.example/v1/jobs/42
+          headers:
+            Authorization:
+              __secretRef: true
+              parts: ['Bearer ', { secret: acme-oauth }]
+            X-Acme-Account: acct-17
+
+e2e:
+  - it: returns the job with its numeric id as a string
+    params: { jobId: '42' }
+    config: { acmeBaseUrl: https://api.acme-jobs.example/v1, acmeAccountId: acct-17 }
+    mocks:
+      - block: get-job
+        out: 'fixture:./job-42.json'
+    post-run:
+      - return: { id: '42', reference: JOB-0042, status: open }
